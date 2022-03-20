@@ -1,10 +1,10 @@
-from fastapi import FastAPI, Depends, status, Request
+from fastapi import FastAPI, Depends, status, Request, Response
 from fastapi.exceptions import HTTPException
-from schema import CreateApi, UpdateApi, DeleteApi, CreateMock
+from schema import CreateApi, UpdateApi, CreateMock
 from sqlalchemy.orm import Session
 from database import get_db
 from models import API, Mock
-import os
+import requests
 
 app = FastAPI()
 
@@ -228,31 +228,85 @@ def delete_mock(api_id: str, path: str, db: Session=Depends(get_db))->dict:
 
 #Annonymous Routes
 @app.get("/{full_path:path}", tags=["Anonymous Paths"])
-def anonymous_routes(request: Request, full_path: str, db: Session=Depends(get_db)):
+def anonymous_routes(response: Response, full_path: str, db: Session=Depends(get_db)):
 
-    referer = str(request.headers.get("referer"))
-    path_ = os.path.split(referer)[1]
-    method = request.method
-    print(type(path_))
-    query =  db.query(Mock).filter(Mock.path==path_).one_or_none()
-    return {"message": query}
+    query =  db.query(Mock).filter(Mock.path==full_path).first()
+    if query:
+        response.headers["REPONSE_SOURCE"] = "Mock Engine"
+        return query
+    try:
+        backend_query = requests.get(full_path)
+    except:
+        response.headers["REPONSE_SOURCE"] = "API"
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="The requested resource was not found")
+    response.headers["REPONSE_SOURCE"] = "API"
+    return {"details": backend_query.content}
 
 @app.post("/{full_path:path}", tags=["Anonymous Paths"])
-def anonymous_routes(request: Request, full_path: str):
+def anonymous_routes(response: Response, full_path: str, db: Session=Depends(get_db)):
 
-    return {"message": "all post routes accepted here"}
+    query =  db.query(Mock).filter(Mock.path==full_path).first()
+
+    if query:
+        response.headers["REPONSE_SOURCE"] = "Mock Engine"
+        return query
+    try:
+        backend_query = requests.get(full_path)
+    except:
+        response.headers["REPONSE_SOURCE"] = "API"
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="The requested resource was not found")
+    response.headers["REPONSE_SOURCE"] = "API"
+    return {"details": backend_query.content}
 
 @app.put("/{full_path:path}", tags=["Anonymous Paths"])
-def anonymous_routes(request: Request, full_path: str):
+def anonymous_routes(response: Response, full_path: str, db: Session=Depends(get_db)):
 
-    return {"message": "all put routes accepted here"}
+    query =  db.query(Mock).filter(Mock.path==full_path).first()
+
+    if query:
+        response.headers["REPONSE_SOURCE"] = "Mock Engine"
+        return query
+    try:
+        backend_query = requests.get(full_path)
+    except:
+        response.headers["REPONSE_SOURCE"] = "API"
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="The requested resource was not found")
+    response.headers["REPONSE_SOURCE"] = "API"
+    return {"details": backend_query.content}
 
 @app.patch("/{full_path:path}", tags=["Anonymous Paths"])
-def anonymous_routes(request: Request, full_path: str):
+def anonymous_routes(response: Response, full_path: str, db: Session=Depends(get_db)):
     
-    return {"message": "all patch routes accepted here"}
+    query =  db.query(Mock).filter(Mock.path==full_path).first()
+
+    if query:
+        response.headers["REPONSE_SOURCE"] = "Mock Engine"
+        return query
+    try:
+        backend_query = requests.get(full_path)
+    except:
+        response.headers["REPONSE_SOURCE"] = "API"
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="The requested resource was not found")
+    response.headers["REPONSE_SOURCE"] = "API"
+    return {"details": backend_query.content}
 
 @app.delete("/{full_path:path}", tags=["Anonymous Paths"])
-def anonymous_routes(request: Request, full_path: str):
+def anonymous_routes(response: Response, full_path: str, db: Session=Depends(get_db)):
 
-    return {"message": "all delete routes accepted here"}
+    query =  db.query(Mock).filter(Mock.path==full_path).first()
+
+    if query:
+        response.headers["REPONSE_SOURCE"] = "Mock Engine"
+        return query
+    try:
+        backend_query = requests.get(full_path)
+    except:
+        response.headers["REPONSE_SOURCE"] = "API"
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="The requested resource was not found")
+    response.headers["REPONSE_SOURCE"] = "API"
+    return {"details": backend_query.content}
